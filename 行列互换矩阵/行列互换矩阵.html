@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="stylesheets/screen.css" />
+    <script>
+        window.onload = function() {
+            var oUl = document.querySelector('ul');
+            var aLi = oUl.getElementsByTagName('li');
+            var num = 8;
+            var arr = [];
+            oUl.style.width = num * (50 + 1) + 'px';
+            oUl.style.height = num * (50 + 1) + 'px';
+            var len = num * num;
+            var fra = document.createDocumentFragment();
+            for(var i = 0; i < len; i++) {
+                var li = document.createElement('li');
+                arr.push(i);
+                fra.appendChild(li);
+            }
+            oUl.appendChild(fra);
+            arr = changeXY(0);
+            for(var i = 0; i < len; i++) {
+                aLi[i].innerHTML = arr[i];
+            }
+            function changeXY(size) {
+                var newArr = [];
+                (function() {
+                    if(size == num) {
+                        return;
+                    }
+                    for(var i = 0; i < len; i++) {
+                        if(i % num == size) {
+                            newArr.push(i);
+                        }
+                    }
+                    size ++;
+                    arguments.callee();
+                })();
+                return newArr;
+            }
+        }
+    </script>
+</head>
+<body>
+<ul></ul>
+</body>
+</html>

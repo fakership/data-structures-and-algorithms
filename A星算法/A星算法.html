@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            margin:0;
+        }
+        ul {
+            padding:0;
+            margin:50px auto;
+            border:1px solid black;
+            border-right:none;
+            border-bottom:none;
+        }
+        li {
+            list-style:none;
+            float:left;
+            width:20px;
+            height:20px;
+            border:1px solid black;
+            border-left:none;
+            border-top:none;
+        }
+        input {
+            width:100px;
+            position:absolute;
+            left:50%;
+            margin-left:-50px;
+        }
+        .red {
+            background:red;
+        }
+        .green {
+            background:green;
+        }
+        .blue {
+            background:blue;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            var sth = new Find();
+            sth.creatrMap();
+            sth.init();
+            sth.click();
+        }
+        function Find() {
+            this.oUl = document.querySelector('ul');
+            this.oIn = document.querySelector('input');
+            this.aLi = this.oUl.getElementsByTagName('li');
+            this.beginLi = this.oUl.getElementsByClassName('red');
+            this.endLi = this.oUl.getElementsByClassName('green');
+            this.openArr = [];
+            this.closeArr = [];
+        }
+        Find.prototype = {
+            constructor : Find,
+            init : function() {
+                this.oUl.style.width = 21 * Math.sqrt(this.map.length) + 1 + 'px';
+                this.oUl.style.height = 21 * Math.sqrt(this.map.length) + 1 + 'px';
+            },
+            click : function() {
+                var _this = this;
+                this.oIn.onclick = function() {
+                    _this.openFn()
+                }
+            },
+            creatrMap : function() {
+                this.map = [
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,3,0,0,0,0,
+                    0,0,0,0,0,0,0,1,0,0,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                ];
+                var _this = this;
+                var fra = document.createDocumentFragment();
+                this.map.forEach(function(item) {
+                    var li = document.createElement('li');
+                    switch(item) {
+                        case 1 :
+                            li.className = 'red';
+                            _this.openArr.push(li);
+                            break;
+                        case 2 :
+                            li.className = 'blue';
+                            _this.closeArr.push(li);
+                            break;
+                        case 3 :
+                            li.className = 'green';
+                            break;
+                    }
+                    fra.appendChild(li);
+                });
+                this.oUl.appendChild(fra);
+            },
+            openFn : function() {
+                var nowLi = this.openArr.shift();
+                if(nowLi == this.endLi[0]) {
+                    this.showLine();
+                    return;
+                }
+                this.closeFn(nowLi);
+                this.openArr.sort(function(li1,li2) {
+                    return li1.cost - li2.cost;
+                });
+                console.dir(this.openArr);
+                this.openFn();
+            },
+            closeFn : function(nowLi) {
+                this.closeArr.push(nowLi);
+                this.findLi(nowLi);
+            },
+            findLi : function(nowLi) {
+                var result = [];
+                for(var i = 0; i < this.aLi.length; i++) {
+                    if(this.filter(this.aLi[i])) {
+                        result.push(this.aLi[i]);
+                    }
+                }
+                for(var i = 0, len = result.length; i < len; i++) {
+                    if(Math.abs(result[i].offsetLeft - nowLi.offsetLeft) <= 21 && Math.abs(result[i].offsetTop - nowLi.offsetTop) <= 21) {
+                        result[i].cost = this.f(result[i]);
+                        result[i].parent = nowLi;
+                        this.openArr.push(result[i]);
+                    }
+                }
+            },
+            filter : function(li) {
+                for(var i = 0 , len = this.closeArr.length; i < len; i++) {
+                    if(li == this.closeArr[i]) {
+                        return false;
+                    }
+                }
+                for(var i = 0 , len = this.openArr.length; i < len; i++) {
+                    if(li == this.openArr[i]) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            f : function(nowLi) {
+                var _this = this;
+                var g = function(nowLi) {
+                    var a = _this.beginLi[0].offsetLeft - nowLi.offsetLeft;
+                    var b = _this.beginLi[0].offsetTop - nowLi.offsetTop;
+                    return Math.sqrt(a * a + b * b);
+                };
+                var h = function(nowLi) {
+                    var a = _this.endLi[0].offsetLeft - nowLi.offsetLeft;
+                    var b = _this.endLi[0].offsetTop - nowLi.offsetTop;
+                    return Math.sqrt(a * a + b * b);
+                }
+                return g(nowLi) + h(nowLi);
+            },
+            showLine : function() {
+                this.result = [];
+                var li = this.closeArr.pop();
+                this.findParent(li);
+                this.autoplay();
+            },
+            findParent : function(li) {{
+                if(li == this.beginLi[0]) {
+                    return;
+                }
+                this.result.unshift(li);
+                this.findParent(li.parent);
+            }},
+            autoplay : function() {
+                this.now = 0;
+                var _this = this;
+                var timer = setInterval(function() {
+                    if(_this.now == _this.result.length - 1) {
+                        clearInterval(timer);
+                    }
+                    _this.result[_this.now].style.backgroundColor = 'red';
+                    _this.now ++;
+                },500);
+            }
+        }
+    </script>
+</head>
+<body>
+<ul></ul>
+<input type="button" value="开始寻路" />
+</body>
+</html>

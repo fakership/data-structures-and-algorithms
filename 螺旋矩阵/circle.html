@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            margin:0px;
+        }
+        ul {
+            padding:0;
+            margin:100px auto 20px;
+            border:1px solid black;
+            border-right:none;
+            border-bottom:none;
+        }
+        li {
+            list-style:none;
+            float:left;
+            width:50px;
+            height:50px;
+            border:1px solid black;
+            border-left:none;
+            border-top:none;
+        }
+        input {
+            width:100px;
+            height:30px;
+            position:absolute;
+            left:50%;
+            margin-left:-50px;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            var sth = new Circle('id1');
+            sth.init({num : 8,w : 60,h : 60});
+            sth.go();
+            sth.click();
+        }
+        function Circle(id) {
+            this.oUl = document.querySelector('#' + id);
+            this.aLi = this.oUl.getElementsByTagName('li');
+            this.x = 0;
+            this.y = 0;
+            this.now = 0;
+            this.timer = null;
+            this.settings = {
+                num : 5,
+                color : 'black',
+                w : 50,
+                h : 50
+            };
+        }
+        Circle.prototype = {
+            init : function(opt) {
+                var _this = this;
+                this.arr = [];
+                extend(opt,this.settings);
+                var num = this.settings.num;
+                this.min = 0;
+                this.max = num - 1;
+                this.len = num * num;
+                var fra = document.createDocumentFragment();
+                this.oUl.style.width = this.settings.num * (this.settings.w + 1) + 1 + 'px';
+                this.oUl.style.height = this.settings.num * (this.settings.h + 1) + 1 + 'px';
+                (function() {
+                    for(var i = 0; i < _this.len; i++) {
+                        var li = document.createElement('li');
+                        fra.appendChild(li);
+                        li.style.width = _this.settings.w + 'px';
+                        li.style.height = _this.settings.h + 'px';
+                    }
+                })();
+                this.oUl.appendChild(fra);
+            },
+            click : function() {
+                var _this = this;
+                var oIn = document.querySelector('input');
+                oIn.addEventListener('click',function() {
+                    var timer = setInterval(function() {
+                        for(var i = 0; i < _this.len; i++) {
+                            _this.aLi[i].style.backgroundColor = '';
+                        }
+                        if(_this.now < _this.len) {
+                            _this.arr[_this.now].style.backgroundColor = 'red';
+                            _this.now ++;
+                        } else {
+                            _this.arr[_this.now - 1].style.backgroundColor = 'red';
+                            clearInterval(timer);
+                        }
+                    },200);
+                },false);
+            },
+            go : function() {
+                for(var i = 0; i < this.len; i++) {
+                    this.arr.push(this.aLi[this.x * this.settings.num + this.y]);
+                    if(this.x == this.min && this.y < this.max) {
+                        this.y ++;
+                    } else if(this.y == this.max && this.x < this.max) {
+                        this.x ++;
+                    } else if(this.x == this.max && this.y > this.min) {
+                        this.y --;
+                    } else if(this.x > this.min && this.y == this.min) {
+                        this.x --;
+                    }
+                    if(this.x - 1 == this.min && this.y == this.min) {
+                        this.max --;
+                        this.min ++;
+                    }
+                }
+            }
+        };
+        function extend(opt,settings) {
+            for(var attr in opt) {
+                if(opt.hasOwnProperty(attr)) {
+                    settings[attr] = opt[attr];
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<ul id="id1"></ul>
+<input type="button" value="Go!" />
+</body>
+</html>
